@@ -57,6 +57,11 @@ impl Partgen {
     
     }
 
+    pub fn setflags(blktarget: String, subblk: u32) -> () {
+        let _ = cmd!("parted", blktarget, "--script", "set", subblk.to_string(), "boot", "on")
+        .run();
+    }
+
     pub fn do_dangerous_task_on(blk: String, partition_style: Vec<DiskInfo>) {
         Self::set_blkdev_partition_table(blk.clone(), "gpt".to_string());
 
@@ -66,6 +71,12 @@ impl Partgen {
             // runn
             let blk_name = format!("{}{}", blk, start_blk_idx);
             Self::mkpart(blk.clone(), partition.start, partition.end, partition.filesystem, blk_name);
+
+            if start_blk_idx == 1 {
+                // set flags
+                Self::setflags(blk.clone(), start_blk_idx);
+
+            }
 
             start_blk_idx = start_blk_idx + 1;
         }
